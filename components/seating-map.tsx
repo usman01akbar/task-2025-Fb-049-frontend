@@ -1,8 +1,10 @@
-'use client';
+"use client";
 
-import { useCallback, useRef, useState, useEffect } from 'react';
-import { Section as SectionType, Venue } from '@/lib/types';
-import { Seat } from './seat';
+import type React from "react";
+
+import { useCallback, useRef, useState, useEffect } from "react";
+import type { Venue } from "@/lib/types";
+import { Seat } from "./seat";
 
 interface SeatingMapProps {
   venue: Venue;
@@ -22,16 +24,21 @@ export function SeatingMap({
   onSeatFocus,
 }: SeatingMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [viewBox, setViewBox] = useState(`0 0 ${venue.map.width} ${venue.map.height}`);
-  
+  const [viewBox, setViewBox] = useState(
+    `0 0 ${venue.map.width} ${venue.map.height}`
+  );
+
   // Handle keyboard navigation between seats
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, seatId: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onSeatClick(seatId);
-    }
-  }, [onSeatClick]);
-  
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, seatId: string) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onSeatClick(seatId);
+      }
+    },
+    [onSeatClick]
+  );
+
   // Responsive viewBox adjustment
   useEffect(() => {
     const updateViewBox = () => {
@@ -39,8 +46,9 @@ export function SeatingMap({
         const container = svgRef.current.parentElement;
         if (container) {
           const aspectRatio = venue.map.width / venue.map.height;
-          const containerAspect = container.clientWidth / container.clientHeight;
-          
+          const containerAspect =
+            container.clientWidth / container.clientHeight;
+
           if (containerAspect > aspectRatio) {
             // Container is wider
             const newWidth = venue.map.height * containerAspect;
@@ -55,17 +63,18 @@ export function SeatingMap({
         }
       }
     };
-    
+
     updateViewBox();
-    window.addEventListener('resize', updateViewBox);
-    return () => window.removeEventListener('resize', updateViewBox);
+    window.addEventListener("resize", updateViewBox);
+    return () => window.removeEventListener("resize", updateViewBox);
   }, [venue.map.width, venue.map.height]);
-  
+
   return (
     <svg
       ref={svgRef}
       viewBox={viewBox}
-      className="w-full h-full"
+      className="w-full h-full touch-manipulation"
+      style={{ touchAction: "manipulation" }}
       role="application"
       aria-label={`${venue.name} seating map`}
     >
@@ -78,12 +87,13 @@ export function SeatingMap({
           <text
             x={100}
             y={20}
-            className="fill-foreground text-sm font-semibold"
+            className="fill-foreground font-semibold pointer-events-none select-none"
+            style={{ fontSize: "14px" }}
             textAnchor="middle"
           >
             {section.label}
           </text>
-          
+
           {/* Seats */}
           {section.rows.map((row) =>
             row.seats.map((seat) => (
